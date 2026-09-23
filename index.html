@@ -25,6 +25,7 @@
           Keranjang <span class="badge" id="cartCount">0</span>
         </button>
         <button class="nav-btn" id="nav-orders" onclick="switchPage('orders')">Pesanan</button>
+        <button class="nav-btn" id="nav-chat" onclick="switchPage('chat')">Chat Penjual</button>
         <button class="nav-btn" id="nav-upload" onclick="switchPage('upload')">+ Jual Barang</button>
         <button class="nav-btn" id="nav-account" onclick="switchPage('account')">Akun Saya</button>
       </nav>
@@ -34,7 +35,7 @@
   <!-- CONTAINER UTAMA -->
   <div class="container">
 
-    <!-- 1. HALAMAN BERANDA / PENCARIAN -->
+    <!-- 1. HALAMAN BERANDA -->
     <section id="page-home" class="page active">
       <div class="promo-banner">
         <div>
@@ -45,26 +46,28 @@
       </div>
 
       <h3 class="section-title">Rekomendasi Produk</h3>
-      <div class="product-grid" id="productGrid">
-        <!-- Produk di-render dinamis dari JavaScript -->
-      </div>
+      <div class="product-grid" id="productGrid"></div>
     </section>
 
     <!-- 2. HALAMAN PROMO HARI INI -->
     <section id="page-promo" class="page">
       <h2 class="section-title">🔥 Promo Spesial Hari Ini</h2>
-      <div class="product-grid" id="promoGrid">
-        <!-- Produk Promo di-render dinamis -->
-      </div>
+      <div class="product-grid" id="promoGrid"></div>
     </section>
 
-    <!-- 3. HALAMAN KERANJANG -->
+    <!-- 3. HALAMAN KERANJANG (DENGAN ALAMAT PENGIRIMAN) -->
     <section id="page-cart" class="page">
       <h2 class="section-title">🛒 Keranjang Belanja</h2>
       <div class="card-box">
         <div id="cartList">
           <p style="color: #888;">Keranjang Anda masih kosong.</p>
         </div>
+
+        <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+          <h4 style="margin-bottom: 10px;">📍 Alamat Pengiriman</h4>
+          <textarea id="shippingAddress" placeholder="Masukkan alamat lengkap (Nama Jalan, No. Rumah, Kecamatan, Kota, Kode Pos)..." style="width: 100%; height: 70px; padding: 10px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+        </div>
+
         <div class="checkout-bar">
           <div>
             <span>Total Pembayaran: </span>
@@ -78,9 +81,7 @@
     <!-- 4. HALAMAN PESANAN -->
     <section id="page-orders" class="page">
       <h2 class="section-title">📦 Riwayat Pesanan</h2>
-      <div id="ordersList">
-        <!-- Daftar pesanan di-render di sini -->
-      </div>
+      <div id="ordersList"></div>
     </section>
 
     <!-- 5. HALAMAN UPLOAD / JUAL BARANG -->
@@ -124,28 +125,120 @@
       </div>
     </section>
 
-    <!-- 6. HALAMAN DETAIL AKUN -->
+    <!-- 6. HALAMAN AKUN -->
     <section id="page-account" class="page">
-      <h2 class="section-title">👤 Detail Akun Saya</h2>
-      <div class="card-box" style="max-width: 500px;">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-          <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">
-            U
-          </div>
+  <h2 class="section-title">👤 Akun & Login</h2>
+  
+  <!-- TAMPILAN JIKA BELUM LOGIN -->
+  <div class="card-box" id="authBox" style="max-width: 400px; margin: 0 auto;">
+    <h3 id="authTitle" style="margin-bottom: 15px;">Masuk ke Akun</h3>
+    
+    <div class="form-group" id="groupUsername" style="display: none;">
+      <label>Username / Nama Toko</label>
+      <input type="text" id="authUsername" placeholder="Contoh: Budi Store">
+    </div>
+    
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="email@contoh.com">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="authPassword" placeholder="******">
+    </div>
+
+    <button class="btn-primary" style="width: 100%;" id="btnAuth" onclick="handleAuth()">Masuk</button>
+    
+    <p style="text-align: center; font-size: 13px; margin-top: 15px; cursor: pointer; color: #00aa5b;" onclick="toggleAuthMode()" id="toggleAuthText">
+      Belum punya akun? Daftar di sini
+    </p>
+  </div>
+
+  <!-- TAMPILAN JIKA SUDAH LOGIN -->
+  <div class="card-box" id="profileBox" style="max-width: 500px; margin: 0 auto; display: none;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+      <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;" id="userAvatar">U</div>
+      <div>
+        <h3 id="userDisplayName">User</h3>
+        <p style="color: #666; font-size: 14px;" id="userDisplayEmail">email@domain.com</p>
+      </div>
+    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 15px;">
+    
+    <!-- EDIT USERNAME -->
+    <div class="form-group">
+      <label>Ubah Username / Nama Toko</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="newUsernameInput" placeholder="Username baru...">
+        <button class="btn-primary" onclick="updateUsername()">Simpan</button>
+      </div>
+    </div>
+
+    <button onclick="keluarAkun()" style="width: 100%; padding: 10px; background: #ff3333; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Keluar / Logout</button>
+  </div>
+</section>
+
+    <!-- 7. HALAMAN PROFIL TOKO PENJUAL -->
+    <section id="page-store" class="page">
+      <div class="card-box" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="width: 60px; height: 60px; background: #ff5722; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;" id="storeAvatar">T</div>
           <div>
-            <h3>User Pembeli / Penjual</h3>
-            <p style="color: #666; font-size: 14px;">user@tokolapak.com</p>
+            <h2 id="storeNameTitle">Toko Official</h2>
+            <p style="color: #666; font-size: 13px;">⭐ 4.9 (1.2rb Ulasan) | 📍 Jakarta Selatan</p>
           </div>
         </div>
-        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 15px;">
-        <p><strong>Status Penjual:</strong> Active (Bisa Menjual & Membeli)</p>
-        <p style="margin-top: 8px;"><strong>Alamat Pengiriman:</strong> Jl. Jend. Sudirman No. 123, Jakarta Selatan</p>
-        <p style="margin-top: 8px;"><strong>Saldo Wallet:</strong> Rp 2.500.000</p>
+        <button class="btn-primary" onclick="openChatWithStore()">💬 Chat Penjual</button>
+      </div>
+
+      <h3 class="section-title">Produk dari Toko Ini</h3>
+      <div class="product-grid" id="storeProductGrid"></div>
+    </section>
+
+    <!-- 8. HALAMAN CHAT -->
+    <section id="page-chat" class="page">
+      <h2 class="section-title">💬 Chat dengan Penjual</h2>
+      <div class="card-box" style="max-width: 600px; margin: 0 auto;">
+        <div style="font-weight: bold; padding-bottom: 10px; border-bottom: 1px solid #eee;" id="chatTargetTitle">
+          Pilih Toko untuk Memulai Chat
+        </div>
+        
+        <div id="chatBox" style="height: 250px; overflow-y: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 10px;">
+          <p style="color: #888; text-align: center; margin-top: 80px;">Belum ada percakapan.</p>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <input type="text" id="chatInput" placeholder="Tulis pesan..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+          <button class="btn-primary" onclick="sendMessage()">Kirim</button>
+        </div>
       </div>
     </section>
 
   </div>
+<!-- SDK Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Tempel konfigurasi dari konsol Firebase kamu di sini
+  const firebaseConfig = {
+    apiKey: "AIzaSy...",
+    authDomain: "proyek-kamu.firebaseapp.com",
+    projectId: "proyek-kamu",
+    storageBucket: "proyek-kamu.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abc123"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+</script>
 
   <script src="script.js"></script>
 </body>
-</html>
+          </html>
+                                                                       
