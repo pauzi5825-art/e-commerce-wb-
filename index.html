@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tokolapak - E-Commerce Indonesia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER NAVBAR -->
+  <header>
+    <div class="header-container">
+      <a class="logo" onclick="switchPage('home')">Tokolapak</a>
+
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Cari barang, merek, atau toko..." onkeyup="filterProducts()">
+        <button onclick="filterProducts()">Cari</button>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" id="nav-home" onclick="switchPage('home')">Beranda</button>
+        <button class="nav-btn" id="nav-promo" onclick="switchPage('promo')">Promo Hari Ini</button>
+        <button class="nav-btn" id="nav-cart" onclick="switchPage('cart')">
+          Keranjang <span class="badge" id="cartCount">0</span>
+        </button>
+        <button class="nav-btn" id="nav-orders" onclick="switchPage('orders')">Pesanan</button>
+        <button class="nav-btn" id="nav-upload" onclick="switchPage('upload')">+ Jual Barang</button>
+        <button class="nav-btn" id="nav-account" onclick="switchPage('account')">Akun Saya</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTAINER UTAMA -->
+  <div class="container">
+
+    <!-- 1. HALAMAN BERANDA / PENCARIAN -->
+    <section id="page-home" class="page active">
+      <div class="promo-banner">
+        <div>
+          <h2>Flash Sale Super Murah!</h2>
+          <p>Diskon hingga 80% khusus transaksi hari ini.</p>
+        </div>
+        <button class="btn-primary" style="background: white; color: #ff5722;" onclick="switchPage('promo')">Lihat Promo</button>
+      </div>
+
+      <h3 class="section-title">Rekomendasi Produk</h3>
+      <div class="product-grid" id="productGrid">
+        <!-- Produk di-render dinamis dari JavaScript -->
+      </div>
+    </section>
+
+    <!-- 2. HALAMAN PROMO HARI INI -->
+    <section id="page-promo" class="page">
+      <h2 class="section-title">🔥 Promo Spesial Hari Ini</h2>
+      <div class="product-grid" id="promoGrid">
+        <!-- Produk Promo di-render dinamis -->
+      </div>
+    </section>
+
+    <!-- 3. HALAMAN KERANJANG -->
+    <section id="page-cart" class="page">
+      <h2 class="section-title">🛒 Keranjang Belanja</h2>
+      <div class="card-box">
+        <div id="cartList">
+          <p style="color: #888;">Keranjang Anda masih kosong.</p>
+        </div>
+        <div class="checkout-bar">
+          <div>
+            <span>Total Pembayaran: </span>
+            <strong id="cartTotal" style="color: #00aa5b; font-size: 18px;">Rp 0</strong>
+          </div>
+          <button class="btn-primary" onclick="checkout()">Beli / Checkout</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. HALAMAN PESANAN -->
+    <section id="page-orders" class="page">
+      <h2 class="section-title">📦 Riwayat Pesanan</h2>
+      <div id="ordersList">
+        <!-- Daftar pesanan di-render di sini -->
+      </div>
+    </section>
+
+    <!-- 5. HALAMAN UPLOAD / JUAL BARANG -->
+    <section id="page-upload" class="page">
+      <h2 class="section-title">➕ Tambah Barang Dagangan</h2>
+      <div class="card-box" style="max-width: 600px; margin: 0 auto;">
+        <form id="uploadForm" onsubmit="handleUploadProduct(event)">
+          <div class="form-group">
+            <label for="prodName">Nama Produk</label>
+            <input type="text" id="prodName" placeholder="Contoh: Sepatu Sneaker Casual" required>
+          </div>
+
+          <div class="form-group">
+            <label for="prodPrice">Harga (Rp)</label>
+            <input type="number" id="prodPrice" placeholder="Contoh: 150000" required>
+          </div>
+
+          <div class="form-group">
+            <label for="prodCategory">Kategori</label>
+            <select id="prodCategory">
+              <option value="Elektronik">Elektronik</option>
+              <option value="Pakaian">Pakaian / Fashion</option>
+              <option value="Makanan">Makanan & Minuman</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="prodDesc">Deskripsi Produk</label>
+            <textarea id="prodDesc" placeholder="Jelaskan kondisi, spesifikasi, dan keunggulan produk Anda..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Foto Produk</label>
+            <input type="file" id="prodImage" accept="image/*" onchange="previewImage(event)" required>
+            <div class="image-preview" id="imagePreview">Preview Foto</div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%;">Upload & Tayangkan Barang</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 6. HALAMAN DETAIL AKUN -->
+    <section id="page-account" class="page">
+      <h2 class="section-title">👤 Detail Akun Saya</h2>
+      <div class="card-box" style="max-width: 500px;">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+          <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">
+            U
+          </div>
+          <div>
+            <h3>User Pembeli / Penjual</h3>
+            <p style="color: #666; font-size: 14px;">user@tokolapak.com</p>
+          </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 15px;">
+        <p><strong>Status Penjual:</strong> Active (Bisa Menjual & Membeli)</p>
+        <p style="margin-top: 8px;"><strong>Alamat Pengiriman:</strong> Jl. Jend. Sudirman No. 123, Jakarta Selatan</p>
+        <p style="margin-top: 8px;"><strong>Saldo Wallet:</strong> Rp 2.500.000</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
