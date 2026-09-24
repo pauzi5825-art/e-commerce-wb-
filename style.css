@@ -11,6 +11,72 @@ body {
   padding-bottom: 60px;
 }
 
+/* ==========================================
+   ANIMASI SPLASH SCREEN (LAYAR PEMBUKA)
+   ========================================== */
+#splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a1a1a; /* Latar Gelap Sesuai Gambar */
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  animation: splashZoom 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.splash-logo-box {
+  width: 65px;
+  height: 65px;
+  background-color: #ff5722;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(255, 87, 34, 0.4);
+}
+
+.cart-icon-splash {
+  width: 38px;
+  height: 38px;
+}
+
+.splash-text {
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+@keyframes splashZoom {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================
+   HEADER & LOGO KIRI ATAS
+   ========================================== */
 header {
   background-color: #00aa5b;
   color: white;
@@ -30,12 +96,35 @@ header {
   gap: 10px;
 }
 
+/* STYLING LOGO PRESISI SESUAI GAMBAR */
 .logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
   cursor: pointer;
+}
+
+.logo-box {
+  width: 32px;
+  height: 32px;
+  background-color: #ff5722;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cart-icon-header {
+  width: 18px;
+  height: 18px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
 }
 
 .search-bar {
@@ -138,18 +227,14 @@ header {
   gap: 8px;
 }
 
-/* ==========================================
-   GRID VIEW UTAMA (TAMPILAN PRODUSEN 2 KOLOM)
-   ========================================== */
+/* GRID VIEW 2 KOLOM */
 .product-grid {
   display: grid;
-  /* Kunci Tampilan 2 Kolom Pas di HP */
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-bottom: 20px;
 }
 
-/* Tampilan Layar Lebar / Tablet & PC */
 @media (min-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -164,14 +249,8 @@ header {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s;
 }
 
-.product-card:active {
-  transform: scale(0.98);
-}
-
-/* Foto Produk Rasio 1:1 Persegi ala Shopee */
 .product-img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -211,7 +290,7 @@ header {
 }
 
 .product-price {
-  color: #ee4d2d; /* Merah khas E-Commerce */
+  color: #ee4d2d;
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 6px;
@@ -241,11 +320,6 @@ header {
   cursor: pointer;
 }
 
-.btn-add-cart:hover {
-  background-color: #008f4c;
-}
-
-/* FORM & BOX STYLES */
 .card-box {
   background: white;
   border-radius: 8px;
@@ -347,4 +421,4 @@ header {
     overflow-x: auto;
     white-space: nowrap;
   }
-  }
+                             }
