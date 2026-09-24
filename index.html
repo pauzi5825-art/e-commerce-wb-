@@ -8,10 +8,35 @@
 </head>
 <body>
 
+  <!-- ANIMASI SPLASH SCREEN (TAMPIL SAAT AWAL) -->
+  <div id="splash-screen">
+    <div class="splash-content">
+      <div class="splash-logo-box">
+        <svg class="cart-icon-splash" viewBox="0 0 24 24" fill="none">
+          <path d="M1 1H5L7.68 14.39C7.77 14.85 8.02 15.26 8.38 15.55C8.75 15.85 9.21 16 9.68 16H19.4C19.86 16 20.32 15.85 20.69 15.55C21.05 15.26 21.3 14.85 21.4 14.39L23 6H6" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="20" r="2" fill="white"/>
+          <circle cx="18" cy="20" r="2" fill="white"/>
+        </svg>
+      </div>
+      <span class="splash-text">tokolapak</span>
+    </div>
+  </div>
+
   <!-- HEADER NAVBAR -->
   <header>
     <div class="header-container">
-      <a class="logo" onclick="switchPage('home')">Tokolapak</a>
+      
+      <!-- LOGO KIRI ATAS -->
+      <a class="logo" onclick="switchPage('home')">
+        <div class="logo-box">
+          <svg class="cart-icon-header" viewBox="0 0 24 24" fill="none">
+            <path d="M1 1H5L7.68 14.39C7.77 14.85 8.02 15.26 8.38 15.55C8.75 15.85 9.21 16 9.68 16H19.4C19.86 16 20.32 15.85 20.69 15.55C21.05 15.26 21.3 14.85 21.4 14.39L23 6H6" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20" r="2" fill="white"/>
+            <circle cx="18" cy="20" r="2" fill="white"/>
+          </svg>
+        </div>
+        <span class="logo-text">tokolapak</span>
+      </a>
 
       <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Cari barang, merek, atau toko..." onkeyup="filterProducts()">
@@ -55,7 +80,7 @@
       <div class="product-grid" id="promoGrid"></div>
     </section>
 
-    <!-- 3. HALAMAN KERANJANG (DENGAN ALAMAT PENGIRIMAN) -->
+    <!-- 3. HALAMAN KERANJANG -->
     <section id="page-cart" class="page">
       <h2 class="section-title">🛒 Keranjang Belanja</h2>
       <div class="card-box">
@@ -71,7 +96,7 @@
         <div class="checkout-bar">
           <div>
             <span>Total Pembayaran: </span>
-            <strong id="cartTotal" style="color: #00aa5b; font-size: 18px;">Rp 0</strong>
+            <strong id="cartTotal" style="color: #ee4d2d; font-size: 18px;">Rp 0</strong>
           </div>
           <button class="btn-primary" onclick="checkout()">Beli / Checkout</button>
         </div>
@@ -125,62 +150,59 @@
       </div>
     </section>
 
-    <!-- 6. HALAMAN AKUN -->
+    <!-- 6. HALAMAN AKUN, LOGIN & REGISTER -->
     <section id="page-account" class="page">
-  <h2 class="section-title">👤 Akun & Login</h2>
-  
-  <!-- TAMPILAN JIKA BELUM LOGIN -->
-  <div class="card-box" id="authBox" style="max-width: 400px; margin: 0 auto;">
-    <h3 id="authTitle" style="margin-bottom: 15px;">Masuk ke Akun</h3>
-    
-    <div class="form-group" id="groupUsername" style="display: none;">
-      <label>Username / Nama Toko</label>
-      <input type="text" id="authUsername" placeholder="Contoh: Budi Store">
-    </div>
-    
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="authEmail" placeholder="email@contoh.com">
-    </div>
+      <h2 class="section-title">👤 Akun & Login</h2>
+      
+      <div class="card-box" id="authBox" style="max-width: 400px; margin: 0 auto;">
+        <h3 id="authTitle" style="margin-bottom: 15px;">Masuk ke Akun</h3>
+        
+        <div class="form-group" id="groupUsername" style="display: none;">
+          <label>Username / Nama Toko</label>
+          <input type="text" id="authUsername" placeholder="Contoh: Budi Store">
+        </div>
+        
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="authEmail" placeholder="email@contoh.com">
+        </div>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="authPassword" placeholder="******">
-    </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="******">
+        </div>
 
-    <button class="btn-primary" style="width: 100%;" id="btnAuth" onclick="handleAuth()">Masuk</button>
-    
-    <p style="text-align: center; font-size: 13px; margin-top: 15px; cursor: pointer; color: #00aa5b;" onclick="toggleAuthMode()" id="toggleAuthText">
-      Belum punya akun? Daftar di sini
-    </p>
-  </div>
-
-  <!-- TAMPILAN JIKA SUDAH LOGIN -->
-  <div class="card-box" id="profileBox" style="max-width: 500px; margin: 0 auto; display: none;">
-    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-      <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;" id="userAvatar">U</div>
-      <div>
-        <h3 id="userDisplayName">User</h3>
-        <p style="color: #666; font-size: 14px;" id="userDisplayEmail">email@domain.com</p>
+        <button class="btn-primary" style="width: 100%;" id="btnAuth" onclick="handleAuth()">Masuk</button>
+        
+        <p style="text-align: center; font-size: 13px; margin-top: 15px; cursor: pointer; color: #00aa5b;" onclick="toggleAuthMode()" id="toggleAuthText">
+          Belum punya akun? Daftar di sini
+        </p>
       </div>
-    </div>
-    
-    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 15px;">
-    
-    <!-- EDIT USERNAME -->
-    <div class="form-group">
-      <label>Ubah Username / Nama Toko</label>
-      <div style="display: flex; gap: 10px;">
-        <input type="text" id="newUsernameInput" placeholder="Username baru...">
-        <button class="btn-primary" onclick="updateUsername()">Simpan</button>
+
+      <div class="card-box" id="profileBox" style="max-width: 500px; margin: 0 auto; display: none;">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+          <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;" id="userAvatar">U</div>
+          <div>
+            <h3 id="userDisplayName">User</h3>
+            <p style="color: #666; font-size: 14px;" id="userDisplayEmail">email@domain.com</p>
+          </div>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 15px;">
+        
+        <div class="form-group">
+          <label>Ubah Username / Nama Toko</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="newUsernameInput" placeholder="Username baru...">
+            <button class="btn-primary" onclick="updateUsername()">Simpan</button>
+          </div>
+        </div>
+
+        <button onclick="keluarAkun()" style="width: 100%; padding: 10px; background: #ff3333; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Keluar / Logout</button>
       </div>
-    </div>
+    </section>
 
-    <button onclick="keluarAkun()" style="width: 100%; padding: 10px; background: #ff3333; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Keluar / Logout</button>
-  </div>
-</section>
-
-    <!-- 7. HALAMAN PROFIL TOKO PENJUAL -->
+    <!-- 7. HALAMAN PROFIL TOKO -->
     <section id="page-store" class="page">
       <div class="card-box" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 15px;">
@@ -217,28 +239,28 @@
     </section>
 
   </div>
-<!-- SDK Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-<script>
-  // Tempel konfigurasi dari konsol Firebase kamu di sini
-  const firebaseConfig = {
-    apiKey: "AIzaSy...",
-    authDomain: "proyek-kamu.firebaseapp.com",
-    projectId: "proyek-kamu",
-    storageBucket: "proyek-kamu.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc123"
-  };
+  <!-- SDK FIREBASE (GOOGLE) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSy...",
+      authDomain: "proyek-kamu.firebaseapp.com",
+      projectId: "proyek-kamu",
+      storageBucket: "proyek-kamu.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+  </script>
 
   <script src="script.js"></script>
 </body>
-          </html>
-                                                                       
+  </html>
+  
