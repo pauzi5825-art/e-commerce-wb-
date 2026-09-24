@@ -477,4 +477,4 @@ window.onload = function() {
     }
   }, 1800);
 };
-        
+                                                                                     
