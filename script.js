@@ -499,4 +499,11 @@ window.onload = function() {
     renderProducts(products);
   });
 };
-    
+// SEMBUNYIKAN ANIMASI SPLASH SCREEN SETELAH 1.8 DETIK
+setTimeout(() => {
+  const splash = document.getElementById('splash-screen');
+  if (splash) {
+    splash.classList.add('hidden');
+  }
+}, 1800);
+      
