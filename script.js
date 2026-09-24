@@ -6,7 +6,7 @@ const SHEETDB_API_URL = "https://sheetdb.io/api/v1/cvv4d9dgw";
 // 1. DATA PRODUK BAWAAN (DUMMY)
 let defaultProducts = [
   {
-    id: 1,
+    id: "1",
     name: "Headphone Bluetooth Wireless Bass",
     price: 249000,
     promo: true,
@@ -16,7 +16,7 @@ let defaultProducts = [
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop"
   },
   {
-    id: 2,
+    id: "2",
     name: "Sepatu Running Sport Light",
     price: 189000,
     promo: true,
@@ -24,16 +24,6 @@ let defaultProducts = [
     seller: "AeroSport Store",
     desc: "Ringan, empuk, dan sangat nyaman dipakai untuk olahraga lari atau harian.",
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    name: "Jam Tangan Minimalis Modern",
-    price: 320000,
-    promo: false,
-    badge: "Garansi 1 Thn",
-    seller: "Urban Style",
-    desc: "Desain elegan cocok untuk acara formal maupun santai. Tahan air hingga 30m.",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop"
   }
 ];
 
@@ -274,21 +264,37 @@ function renderOrders() {
   container.innerHTML = html;
 }
 
-// 5. UPLOAD FOTO PREVIEW
+// 5. UPLOAD FOTO DENGAN KOMPRES OTOMATIS
 function previewImage(event) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      uploadedImageBase64 = e.target.result;
-      const prevEl = document.getElementById('imagePreview');
-      if (prevEl) prevEl.innerHTML = `<img src="${uploadedImageBase64}" alt="Preview" style="max-height:100px; border-radius:8px;">`;
+      const img = new Image();
+      img.onload = function() {
+        // Kompres ukuran foto agar tidak melebih batas sel Google Sheets
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxWidth = 250;
+        const scaleSize = maxWidth / img.width;
+        canvas.width = maxWidth;
+        canvas.height = img.height * scaleSize;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Simpan foto dalam ukuran ringan
+        uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
+
+        const prevEl = document.getElementById('imagePreview');
+        if (prevEl) prevEl.innerHTML = `<img src="${uploadedImageBase64}" alt="Preview" style="max-height:100px; border-radius:8px;">`;
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
 }
 
-// 6. UPLOAD PRODUK KE GOOGLE SHEETS VIA SHEETDB
+// 6. UPLOAD PRODUK KE GOOGLE SHEETS
 async function handleUploadProduct(event) {
   event.preventDefault();
 
@@ -307,7 +313,7 @@ async function handleUploadProduct(event) {
     return;
   }
 
-  const sellerName = currentUser ? (currentUser.displayName || "Toko Penjual") : "Toko Saya";
+  const sellerName = typeof currentUser !== 'undefined' && currentUser ? (currentUser.displayName || "Toko Penjual") : "Toko Saya";
 
   const newProduct = {
     id: Date.now().toString(),
@@ -323,7 +329,7 @@ async function handleUploadProduct(event) {
   const submitBtn = event.target.querySelector('button[type="submit"]');
   const originalText = submitBtn ? submitBtn.innerText : "Unggah";
   if (submitBtn) {
-    submitBtn.innerText = "Mengunggah ke Sheets...";
+    submitBtn.innerText = "Mengunggah...";
     submitBtn.disabled = true;
   }
 
@@ -335,7 +341,7 @@ async function handleUploadProduct(event) {
     });
 
     if (response.ok) {
-      alert('Barang berhasil diupload ke Google Sheets dan bisa dilihat oleh semua pengguna!');
+      alert('Barang berhasil diupload!');
       if (document.getElementById('uploadForm')) document.getElementById('uploadForm').reset();
       const prevEl = document.getElementById('imagePreview');
       if (prevEl) prevEl.innerHTML = 'Preview Foto';
@@ -344,11 +350,10 @@ async function handleUploadProduct(event) {
       switchPage('home');
       fetchProductsFromSheets();
     } else {
-      alert('Gagal upload. Pastikan Google Sheets sudah di-share ke Editor.');
+      alert('Gagal upload. Pastikan Baris 1 di Google Sheets terisi header: id, name, price, desc, image, badge, seller, promo');
     }
   } catch (err) {
     alert('Terjadi kesalahan koneksi.');
-    console.error(err);
   } finally {
     if (submitBtn) {
       submitBtn.innerText = originalText;
@@ -433,88 +438,7 @@ function sendMessage() {
   }, 1000);
 }
 
-// 8. AUTENTIKASI PENGGUNA (LOGIN/REGISTER)
-let isRegisterMode = false;
-let currentUser = null;
-
-function toggleAuthMode() {
-  isRegisterMode = !isRegisterMode;
-  if (document.getElementById('authTitle')) document.getElementById('authTitle').innerText = isRegisterMode ? "Daftar Akun Baru" : "Masuk ke Akun";
-  if (document.getElementById('btnAuth')) document.getElementById('btnAuth').innerText = isRegisterMode ? "Daftar" : "Masuk";
-  if (document.getElementById('groupUsername')) document.getElementById('groupUsername').style.display = isRegisterMode ? "block" : "none";
-  if (document.getElementById('toggleAuthText')) document.getElementById('toggleAuthText').innerText = isRegisterMode ? "Sudah punya akun? Login di sini" : "Belum punya akun? Daftar di sini";
-}
-
-function handleAuth() {
-  const email = document.getElementById('authEmail').value;
-  const password = document.getElementById('authPassword').value;
-  const username = document.getElementById('authUsername').value;
-
-  if (!email || !password) {
-    alert("Email dan password wajib diisi!");
-    return;
-  }
-
-  if (typeof auth !== 'undefined') {
-    if (isRegisterMode) {
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          userCredential.user.updateProfile({ displayName: username || "User" }).then(() => {
-            alert("Pendaftaran berhasil!");
-            location.reload();
-          });
-        })
-        .catch(err => alert("Gagal daftar: " + err.message));
-    } else {
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => alert("Berhasil login!"))
-        .catch(err => alert("Gagal login: " + err.message));
-    }
-  } else {
-    alert("Modul autentikasi siap.");
-  }
-}
-
-function updateUsername() {
-  const newName = document.getElementById('newUsernameInput').value.trim();
-  if (!newName) return alert("Isi username baru terlebih dahulu!");
-
-  if (typeof auth !== 'undefined' && auth.currentUser) {
-    auth.currentUser.updateProfile({ displayName: newName })
-      .then(() => {
-        alert("Username berhasil diperbarui!");
-        if (document.getElementById('userDisplayName')) document.getElementById('userDisplayName').innerText = newName;
-        if (document.getElementById('userAvatar')) document.getElementById('userAvatar').innerText = newName.charAt(0).toUpperCase();
-        if (document.getElementById('newUsernameInput')) document.getElementById('newUsernameInput').value = '';
-      })
-      .catch(err => alert("Gagal ubah username: " + err.message));
-  }
-}
-
-function keluarAkun() {
-  if (typeof auth !== 'undefined') {
-    auth.signOut().then(() => alert("Anda telah keluar."));
-  }
-}
-
-if (typeof auth !== 'undefined') {
-  auth.onAuthStateChanged((user) => {
-    currentUser = user;
-    if (user) {
-      if (document.getElementById('authBox')) document.getElementById('authBox').style.display = 'none';
-      if (document.getElementById('profileBox')) document.getElementById('profileBox').style.display = 'block';
-      const name = user.displayName || "User";
-      if (document.getElementById('userDisplayName')) document.getElementById('userDisplayName').innerText = name;
-      if (document.getElementById('userDisplayEmail')) document.getElementById('userDisplayEmail').innerText = user.email;
-      if (document.getElementById('userAvatar')) document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
-    } else {
-      if (document.getElementById('authBox')) document.getElementById('authBox').style.display = 'block';
-      if (document.getElementById('profileBox')) document.getElementById('profileBox').style.display = 'none';
-    }
-  });
-}
-
-// 9. AMBIL DATA DARI GOOGLE SHEETS
+// 8. AMBIL DATA DARI GOOGLE SHEETS
 async function fetchProductsFromSheets() {
   try {
     const response = await fetch(SHEETDB_API_URL);
@@ -536,12 +460,12 @@ async function fetchProductsFromSheets() {
       }
     }
   } catch (error) {
-    console.log("Memuat data produk...");
+    console.log("Memuat data...");
   }
   renderProducts(products);
 }
 
-// 10. SAAT HALAMAN SELESAI DIMUAT
+// 9. SAAT HALAMAN SELESAI DIMUAT
 window.onload = function() {
   renderProducts(products);
   fetchProductsFromSheets();
