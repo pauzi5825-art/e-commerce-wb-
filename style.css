@@ -1,4 +1,3 @@
-/* RESET & BASE STYLES */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,7 +11,6 @@ body {
   padding-bottom: 60px;
 }
 
-/* HEADER & NAVIGATION */
 header {
   background-color: #00aa5b;
   color: white;
@@ -25,15 +23,15 @@ header {
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 20px;
+  padding: 10px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
+  gap: 10px;
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: white;
   text-decoration: none;
@@ -48,31 +46,26 @@ header {
 
 .search-bar input {
   width: 100%;
-  padding: 10px 15px;
+  padding: 8px 12px;
   border: none;
   border-radius: 6px 0 0 6px;
   outline: none;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .search-bar button {
-  padding: 10px 20px;
+  padding: 8px 15px;
   background-color: #ff5722;
   border: none;
   color: white;
   font-weight: bold;
   border-radius: 0 6px 6px 0;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-.search-bar button:hover {
-  background-color: #e64a19;
 }
 
 .nav-links {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -80,15 +73,14 @@ header {
   background: none;
   border: none;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  transition: background 0.2s;
+  gap: 4px;
 }
 
 .nav-btn:hover, .nav-btn.active {
@@ -98,19 +90,17 @@ header {
 .badge {
   background-color: #ff5722;
   color: white;
-  font-size: 11px;
-  padding: 2px 6px;
+  font-size: 10px;
+  padding: 2px 5px;
   border-radius: 10px;
 }
 
-/* MAIN CONTAINER */
 .container {
   max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 20px;
+  margin: 15px auto;
+  padding: 0 10px;
 }
 
-/* PAGES VIEW CONTROL */
 .page {
   display: none;
 }
@@ -119,73 +109,101 @@ header {
   display: block;
 }
 
-/* BANNER PROMO */
 .promo-banner {
   background: linear-gradient(135deg, #ff5722, #ff9800);
   color: white;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 25px;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .promo-banner h2 {
-  font-size: 24px;
-  margin-bottom: 5px;
+  font-size: 18px;
+  margin-bottom: 4px;
 }
 
-/* PRODUCT GRID */
+.promo-banner p {
+  font-size: 12px;
+}
+
 .section-title {
-  font-size: 20px;
-  margin-bottom: 15px;
+  font-size: 16px;
+  margin-bottom: 12px;
   color: #333;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
+/* ==========================================
+   GRID VIEW UTAMA (TAMPILAN PRODUSEN 2 KOLOM)
+   ========================================== */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 18px;
+  /* Kunci Tampilan 2 Kolom Pas di HP */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* Tampilan Layar Lebar / Tablet & PC */
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+  }
 }
 
 .product-card {
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s;
 }
 
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+.product-card:active {
+  transform: scale(0.98);
 }
 
+/* Foto Produk Rasio 1:1 Persegi ala Shopee */
 .product-img {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  background-color: #eee;
+  background-color: #f8f8f8;
 }
 
 .product-info {
-  padding: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
+.product-badge {
+  font-size: 10px;
+  font-weight: bold;
+  color: #ff5722;
+  background-color: #fbe9e7;
+  padding: 2px 5px;
+  border-radius: 3px;
+  width: fit-content;
+  margin-bottom: 4px;
+}
+
 .product-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  height: 38px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #222;
+  line-height: 1.3;
+  margin-bottom: 6px;
+  height: 32px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -193,67 +211,60 @@ header {
 }
 
 .product-price {
-  color: #00aa5b;
-  font-size: 16px;
+  color: #ee4d2d; /* Merah khas E-Commerce */
+  font-size: 14px;
   font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.product-badge {
-  font-size: 11px;
-  color: #ff5722;
-  background-color: #fbe9e7;
-  padding: 2px 6px;
-  border-radius: 4px;
-  width: fit-content;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .product-desc {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 12px;
-  height: 32px;
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 8px;
+  height: 28px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .btn-add-cart {
   margin-top: auto;
   width: 100%;
-  padding: 8px;
+  padding: 6px;
   background-color: #00aa5b;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
 .btn-add-cart:hover {
   background-color: #008f4c;
 }
 
-/* CART & ORDERS STYLES */
+/* FORM & BOX STYLES */
 .card-box {
   background: white;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 15px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   margin-bottom: 15px;
 }
 
 .cart-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 12px 0;
+  gap: 12px;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
 .cart-item img {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   object-fit: cover;
   border-radius: 6px;
 }
@@ -266,58 +277,58 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
-  padding-top: 15px;
+  margin-top: 15px;
+  padding-top: 12px;
   border-top: 2px solid #eee;
 }
 
 .btn-primary {
   background-color: #00aa5b;
   color: white;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
 }
 
-/* FORM STYLES (UPLOAD BARANG) */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .form-group input, .form-group textarea, .form-group select {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .form-group textarea {
   resize: vertical;
-  height: 100px;
+  height: 80px;
 }
 
 .image-preview {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border: 2px dashed #ccc;
-  margin-top: 10px;
+  margin-top: 8px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   color: #aaa;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .image-preview img {
@@ -326,7 +337,6 @@ header {
   object-fit: cover;
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .header-container {
     flex-direction: column;
@@ -335,5 +345,6 @@ header {
   .nav-links {
     justify-content: space-around;
     overflow-x: auto;
+    white-space: nowrap;
   }
-}
+  }
