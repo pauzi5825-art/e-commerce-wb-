@@ -1,7 +1,16 @@
 // ==========================================
-// KONFIGURASI GOOGLE SHEETS VIA SHEETDB
+// KONFIGURASI SUPABASE DATABASE
 // ==========================================
-const SHEETDB_API_URL = "https://sheetdb.io/api/v1/cvv4d9dgw";
+const SUPABASE_URL = "https://qnwaxgqmnlfvlxuseuoi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFud2F4Z3Ftbmxmdmx4dXNldW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzMjg4NzIsImV4cCI6MjEwNTkwNDg3Mn0.0SasgtMej2vTuWugLIugAZOEmXILeA4xMwaJlYLtAsU";
+
+// Header untuk Akses Supabase REST API
+const SUPABASE_HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
+  "Prefer": "return=representation"
+};
 
 // 1. DATA PRODUK BAWAAN (DUMMY)
 let defaultProducts = [
@@ -24,6 +33,16 @@ let defaultProducts = [
     seller: "AeroSport Store",
     desc: "Ringan, empuk, dan sangat nyaman dipakai untuk olahraga lari atau harian.",
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop"
+  },
+  {
+    id: "3",
+    name: "Jam Tangan Minimalis Modern",
+    price: 320000,
+    promo: false,
+    badge: "Garansi 1 Thn",
+    seller: "Urban Style",
+    desc: "Desain elegan cocok untuk acara formal maupun santai. Tahan air hingga 30m.",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop"
   }
 ];
 
@@ -33,7 +52,118 @@ let orders = [];
 let uploadedImageBase64 = "";
 let activeStore = "";
 
-// 2. NAVIGASI HALAMAN
+// 2. SISTEM AKUN & AUTENTIKASI LOKAL
+let isRegisterMode = false;
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+function checkAuthState() {
+  const authBox = document.getElementById('authBox');
+  const profileBox = document.getElementById('profileBox');
+  const userDisplayName = document.getElementById('userDisplayName');
+  const userDisplayEmail = document.getElementById('userDisplayEmail');
+  const userAvatar = document.getElementById('userAvatar');
+
+  if (currentUser) {
+    if (authBox) authBox.style.display = 'none';
+    if (profileBox) profileBox.style.display = 'block';
+    const name = currentUser.displayName || currentUser.username || "Pengguna";
+    if (userDisplayName) userDisplayName.innerText = name;
+    if (userDisplayEmail) userDisplayEmail.innerText = currentUser.email || "";
+    if (userAvatar) userAvatar.innerText = name.charAt(0).toUpperCase();
+  } else {
+    if (authBox) authBox.style.display = 'block';
+    if (profileBox) profileBox.style.display = 'none';
+  }
+}
+
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  const authTitle = document.getElementById('authTitle');
+  const btnAuth = document.getElementById('btnAuth');
+  const groupUsername = document.getElementById('groupUsername');
+  const toggleAuthText = document.getElementById('toggleAuthText');
+
+  if (authTitle) authTitle.innerText = isRegisterMode ? "Daftar Akun Baru" : "Masuk ke Akun";
+  if (btnAuth) btnAuth.innerText = isRegisterMode ? "Daftar" : "Masuk";
+  if (groupUsername) groupUsername.style.display = isRegisterMode ? "block" : "none";
+  if (toggleAuthText) toggleAuthText.innerText = isRegisterMode ? "Sudah punya akun? Login di sini" : "Belum punya akun? Daftar di sini";
+}
+
+function handleAuth() {
+  const emailInput = document.getElementById('authEmail');
+  const passwordInput = document.getElementById('authPassword');
+  const usernameInput = document.getElementById('authUsername');
+
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value.trim() : '';
+  const username = usernameInput ? usernameInput.value.trim() : '';
+
+  if (!email || !password) {
+    alert("Email dan Password wajib diisi!");
+    return;
+  }
+
+  if (isRegisterMode) {
+    if (!username) {
+      alert("Username wajib diisi untuk pendaftaran!");
+      return;
+    }
+    const existing = registeredUsers.find(u => u.email === email);
+    if (existing) {
+      alert("Email sudah terdaftar. Silakan masuk!");
+      return;
+    }
+    const newUser = { email, password, displayName: username };
+    registeredUsers.push(newUser);
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    
+    currentUser = newUser;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    alert("Pendaftaran berhasil! Selamat datang, " + username);
+    checkAuthState();
+  } else {
+    const user = registeredUsers.find(u => u.email === email && u.password === password);
+    if (user) {
+      currentUser = user;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      alert("Berhasil masuk! Selamat datang kembali.");
+      checkAuthState();
+    } else {
+      alert("Email atau password salah! Jika belum punya akun, klik 'Daftar di sini'.");
+    }
+  }
+}
+
+function updateUsername() {
+  const newNameInput = document.getElementById('newUsernameInput');
+  const newName = newNameInput ? newNameInput.value.trim() : '';
+  if (!newName) return alert("Isi username baru terlebih dahulu!");
+
+  if (currentUser) {
+    currentUser.displayName = newName;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    const userIdx = registeredUsers.findIndex(u => u.email === currentUser.email);
+    if (userIdx !== -1) {
+      registeredUsers[userIdx].displayName = newName;
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    }
+    
+    alert("Username berhasil diperbarui!");
+    if (newNameInput) newNameInput.value = '';
+    checkAuthState();
+  }
+}
+
+function keluarAkun() {
+  currentUser = null;
+  localStorage.setItem('currentUser', JSON.stringify(null));
+  alert("Anda telah keluar dari akun.");
+  checkAuthState();
+}
+
+// 3. NAVIGASI HALAMAN
 function switchPage(pageId) {
   document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -48,13 +178,14 @@ function switchPage(pageId) {
   if (pageId === 'promo') renderPromoProducts();
   if (pageId === 'cart') renderCart();
   if (pageId === 'orders') renderOrders();
+  if (pageId === 'account') checkAuthState();
 }
 
 function formatRupiah(amount) {
   return 'Rp ' + Number(amount).toLocaleString('id-ID');
 }
 
-// 3. TAMPILKAN PRODUK
+// 4. TAMPILKAN PRODUK
 function renderProducts(items) {
   const grid = document.getElementById('productGrid');
   if (!grid) return;
@@ -111,7 +242,8 @@ function renderPromoProducts() {
 }
 
 function filterProducts() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
+  const queryInput = document.getElementById('searchInput');
+  const query = queryInput ? queryInput.value.toLowerCase() : '';
   const filtered = products.filter(p => 
     p.name.toLowerCase().includes(query) || 
     p.desc.toLowerCase().includes(query)
@@ -120,7 +252,7 @@ function filterProducts() {
   renderProducts(filtered);
 }
 
-// 4. KERANJANG BELANJA
+// 5. KERANJANG BELANJA
 function addToCart(productId) {
   const product = products.find(p => p.id == productId);
   if (!product) return;
@@ -264,7 +396,7 @@ function renderOrders() {
   container.innerHTML = html;
 }
 
-// 5. UPLOAD FOTO DENGAN KOMPRES OTOMATIS
+// 6. PREVIEW & KOMPRES FOTO
 function previewImage(event) {
   const file = event.target.files[0];
   if (file) {
@@ -272,18 +404,15 @@ function previewImage(event) {
     reader.onload = function(e) {
       const img = new Image();
       img.onload = function() {
-        // Kompres ukuran foto agar tidak melebih batas sel Google Sheets
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const maxWidth = 250;
+        const maxWidth = 400;
         const scaleSize = maxWidth / img.width;
         canvas.width = maxWidth;
         canvas.height = img.height * scaleSize;
 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        // Simpan foto dalam ukuran ringan
-        uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.5);
+        uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
         const prevEl = document.getElementById('imagePreview');
         if (prevEl) prevEl.innerHTML = `<img src="${uploadedImageBase64}" alt="Preview" style="max-height:100px; border-radius:8px;">`;
@@ -294,7 +423,7 @@ function previewImage(event) {
   }
 }
 
-// 6. UPLOAD PRODUK KE GOOGLE SHEETS
+// 7. UPLOAD PRODUK KE SUPABASE
 async function handleUploadProduct(event) {
   event.preventDefault();
 
@@ -313,17 +442,16 @@ async function handleUploadProduct(event) {
     return;
   }
 
-  const sellerName = typeof currentUser !== 'undefined' && currentUser ? (currentUser.displayName || "Toko Penjual") : "Toko Saya";
+  const sellerName = currentUser ? (currentUser.displayName || "Toko Saya") : "Toko Saya";
 
   const newProduct = {
-    id: Date.now().toString(),
     name: name,
     price: price,
     desc: desc,
     image: uploadedImageBase64,
     badge: "Penjual",
     seller: sellerName,
-    promo: "false"
+    promo: false
   };
 
   const submitBtn = event.target.querySelector('button[type="submit"]');
@@ -334,26 +462,27 @@ async function handleUploadProduct(event) {
   }
 
   try {
-    const response = await fetch(SHEETDB_API_URL, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: [newProduct] })
+      headers: SUPABASE_HEADERS,
+      body: JSON.stringify([newProduct])
     });
 
     if (response.ok) {
-      alert('Barang berhasil diupload!');
+      alert('Barang berhasil diupload ke Supabase!');
       if (document.getElementById('uploadForm')) document.getElementById('uploadForm').reset();
       const prevEl = document.getElementById('imagePreview');
       if (prevEl) prevEl.innerHTML = 'Preview Foto';
       uploadedImageBase64 = '';
       
       switchPage('home');
-      fetchProductsFromSheets();
+      fetchProductsFromSupabase();
     } else {
-      alert('Gagal upload. Pastikan Baris 1 di Google Sheets terisi header: id, name, price, desc, image, badge, seller, promo');
+      const errData = await response.json();
+      alert('Gagal upload ke Supabase: ' + (errData.message || 'Periksa RLS/Tabel Supabase'));
     }
   } catch (err) {
-    alert('Terjadi kesalahan koneksi.');
+    alert('Terjadi kesalahan koneksi ke Supabase.');
   } finally {
     if (submitBtn) {
       submitBtn.innerText = originalText;
@@ -362,7 +491,7 @@ async function handleUploadProduct(event) {
   }
 }
 
-// 7. CHAT & STORE
+// 8. CHAT & STORE
 function openStore(sellerName) {
   activeStore = sellerName;
   const titleEl = document.getElementById('storeNameTitle');
@@ -438,37 +567,31 @@ function sendMessage() {
   }, 1000);
 }
 
-// 8. AMBIL DATA DARI GOOGLE SHEETS
-async function fetchProductsFromSheets() {
+// 9. AMBIL DATA DARI SUPABASE
+async function fetchProductsFromSupabase() {
   try {
-    const response = await fetch(SHEETDB_API_URL);
-    if (response.ok) {
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const cloudProducts = data.map(item => ({
-          id: item.id || Date.now().toString(),
-          name: item.name || 'Produk',
-          price: parseFloat(item.price) || 0,
-          promo: item.promo === "true" || item.promo === true,
-          badge: item.badge || 'Baru',
-          seller: item.seller || 'Toko Saya',
-          desc: item.desc || '',
-          image: item.image || 'https://via.placeholder.com/150'
-        })).reverse();
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*&order=id.desc`, {
+      method: 'GET',
+      headers: SUPABASE_HEADERS
+    });
 
+    if (response.ok) {
+      const cloudProducts = await response.json();
+      if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
         products = [...cloudProducts, ...defaultProducts];
       }
     }
   } catch (error) {
-    console.log("Memuat data...");
+    console.log("Memuat data dari Supabase...");
   }
   renderProducts(products);
 }
 
-// 9. SAAT HALAMAN SELESAI DIMUAT
+// 10. SAAT HALAMAN DIBUKA
 window.onload = function() {
   renderProducts(products);
-  fetchProductsFromSheets();
+  fetchProductsFromSupabase();
+  checkAuthState();
 
   setTimeout(() => {
     const splash = document.getElementById('splash-screen');
@@ -477,4 +600,3 @@ window.onload = function() {
     }
   }, 1800);
 };
-                                                                                     
