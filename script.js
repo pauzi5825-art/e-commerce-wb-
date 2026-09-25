@@ -444,7 +444,9 @@ async function handleUploadProduct(event) {
 
   const sellerName = currentUser ? (currentUser.displayName || "Toko Saya") : "Toko Saya";
 
+  // Tambahkan ID berbasis timestamp agar tidak NULL
   const newProduct = {
+    id: Date.now().toString(),
     name: name,
     price: price,
     desc: desc,
