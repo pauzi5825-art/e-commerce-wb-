@@ -4,6 +4,9 @@
 const SUPABASE_URL = "https://qnwaxgqmnlfvlxuseuoi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFud2F4Z3Ftbmxmdmx4dXNldW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzMjg4NzIsImV4cCI6MjEwNTkwNDg3Mn0.0SasgtMej2vTuWugLIugAZOEmXILeA4xMwaJlYLtAsU";
 
+// Inisialisasi SDK Supabase Client
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // Header untuk Akses Supabase REST API
 const SUPABASE_HEADERS = {
   "apikey": SUPABASE_KEY,
@@ -52,10 +55,19 @@ let orders = [];
 let uploadedImageBase64 = "";
 let activeStore = "";
 
-// 2. SISTEM AKUN & AUTENTIKASI LOKAL
-let isRegisterMode = false;
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+// ==========================================
+// 2. SISTEM AUTENTIKASI MULTI-METHOD (SUPABASE AUTH)
+// ==========================================
+
+// Pantau Sesi Login Pengguna secara Otomatis
+_supabase.auth.onAuthStateChange((event, session) => {
+  if (session && session.user) {
+    currentUser = session.user;
+  } else {
+    currentUser = null;
+  }
+  checkAuthState();
+});
 
 function checkAuthState() {
   const authBox = document.getElementById('authBox');
@@ -67,15 +79,33 @@ function checkAuthState() {
   if (currentUser) {
     if (authBox) authBox.style.display = 'none';
     if (profileBox) profileBox.style.display = 'block';
-    const name = currentUser.displayName || currentUser.username || "Pengguna";
+
+    const name = currentUser.user_metadata?.full_name || 
+                 currentUser.user_metadata?.username || 
+                 currentUser.email || 
+                 currentUser.phone || 
+                 "Pengguna";
+
     if (userDisplayName) userDisplayName.innerText = name;
-    if (userDisplayEmail) userDisplayEmail.innerText = currentUser.email || "";
+    if (userDisplayEmail) userDisplayEmail.innerText = currentUser.email || currentUser.phone || "Akun Terverifikasi";
     if (userAvatar) userAvatar.innerText = name.charAt(0).toUpperCase();
   } else {
     if (authBox) authBox.style.display = 'block';
     if (profileBox) profileBox.style.display = 'none';
   }
 }
+
+// METODE 1: LOGIN GOOGLE
+async function loginWithGoogle() {
+  const { data, error } = await _supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) alert("Gagal login dengan Google: " + error.message);
+}
+
+// METODE 2: EMAIL & PASSWORD (DAFTAR / MASUK)
+let isRegisterMode = false;
 
 function toggleAuthMode() {
   isRegisterMode = !isRegisterMode;
@@ -90,7 +120,7 @@ function toggleAuthMode() {
   if (toggleAuthText) toggleAuthText.innerText = isRegisterMode ? "Sudah punya akun? Login di sini" : "Belum punya akun? Daftar di sini";
 }
 
-function handleAuth() {
+async function handleEmailAuth() {
   const emailInput = document.getElementById('authEmail');
   const passwordInput = document.getElementById('authPassword');
   const usernameInput = document.getElementById('authUsername');
@@ -99,69 +129,96 @@ function handleAuth() {
   const password = passwordInput ? passwordInput.value.trim() : '';
   const username = usernameInput ? usernameInput.value.trim() : '';
 
-  if (!email || !password) {
-    alert("Email dan Password wajib diisi!");
-    return;
-  }
+  if (!email || !password) return alert("Email dan Password wajib diisi!");
 
   if (isRegisterMode) {
-    if (!username) {
-      alert("Username wajib diisi untuk pendaftaran!");
-      return;
-    }
-    const existing = registeredUsers.find(u => u.email === email);
-    if (existing) {
-      alert("Email sudah terdaftar. Silakan masuk!");
-      return;
-    }
-    const newUser = { email, password, displayName: username };
-    registeredUsers.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-    
-    currentUser = newUser;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    alert("Pendaftaran berhasil! Selamat datang, " + username);
-    checkAuthState();
-  } else {
-    const user = registeredUsers.find(u => u.email === email && u.password === password);
-    if (user) {
-      currentUser = user;
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      alert("Berhasil masuk! Selamat datang kembali.");
-      checkAuthState();
+    if (!username) return alert("Username wajib diisi untuk pendaftaran!");
+
+    const { data, error } = await _supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: { data: { full_name: username } }
+    });
+
+    if (error) {
+      alert("Gagal Pendaftaran: " + error.message);
     } else {
-      alert("Email atau password salah! Jika belum punya akun, klik 'Daftar di sini'.");
+      alert("Pendaftaran Berhasil! Silakan cek email/langsung login.");
     }
+  } else {
+    const { data, error } = await _supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) alert("Gagal Login: " + error.message);
+    else alert("Berhasil masuk!");
   }
 }
 
-function updateUsername() {
+// METODE 3: NOMOR TELEPON (OTP SMS/WHATSAPP)
+async function sendPhoneOTP() {
+  const phoneInput = document.getElementById('authPhone');
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+
+  if (!phone) return alert("Masukkan nomor HP dengan kode negara (contoh: +628123456789)");
+
+  const { data, error } = await _supabase.auth.signInWithOtp({ phone: phone });
+
+  if (error) {
+    alert("Gagal mengirim OTP: " + error.message);
+  } else {
+    alert("Kode OTP berhasil dikirim ke " + phone);
+    const otpBox = document.getElementById('otpVerifyGroup');
+    if (otpBox) otpBox.style.display = 'block';
+  }
+}
+
+async function verifyPhoneOTP() {
+  const phoneInput = document.getElementById('authPhone');
+  const otpInput = document.getElementById('authOTP');
+
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+  const token = otpInput ? otpInput.value.trim() : '';
+
+  if (!token) return alert("Masukkan kode OTP!");
+
+  const { data, error } = await _supabase.auth.verifyOtp({
+    phone: phone,
+    token: token,
+    type: 'sms'
+  });
+
+  if (error) alert("Kode OTP Salah/Kadaluarsa: " + error.message);
+  else alert("Nomor HP berhasil diverifikasi!");
+}
+
+// UBAH USERNAME
+async function updateUsername() {
   const newNameInput = document.getElementById('newUsernameInput');
   const newName = newNameInput ? newNameInput.value.trim() : '';
   if (!newName) return alert("Isi username baru terlebih dahulu!");
 
-  if (currentUser) {
-    currentUser.displayName = newName;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
-    const userIdx = registeredUsers.findIndex(u => u.email === currentUser.email);
-    if (userIdx !== -1) {
-      registeredUsers[userIdx].displayName = newName;
-      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-    }
-    
+  const { data, error } = await _supabase.auth.updateUser({
+    data: { full_name: newName }
+  });
+
+  if (error) {
+    alert("Gagal memperbarui username: " + error.message);
+  } else {
     alert("Username berhasil diperbarui!");
     if (newNameInput) newNameInput.value = '';
     checkAuthState();
   }
 }
 
-function keluarAkun() {
+// LOGOUT
+async function keluarAkun() {
+  await _supabase.auth.signOut();
   currentUser = null;
-  localStorage.setItem('currentUser', JSON.stringify(null));
   alert("Anda telah keluar dari akun.");
   checkAuthState();
-}
+    }
 
 // 3. NAVIGASI HALAMAN
 function switchPage(pageId) {
