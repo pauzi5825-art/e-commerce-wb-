@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tokolapak - E-Commerce Indonesia</title>
@@ -153,32 +154,61 @@
     <!-- 6. HALAMAN AKUN, LOGIN & REGISTER -->
     <section id="page-account" class="page">
       <h2 class="section-title">👤 Akun & Login</h2>
+          <div class="card-box" id="authBox">
+      <!-- 1. Google Auth -->
+      <button onclick="loginWithGoogle()" style="width:100%; padding:10px; background:#4285F4; color:white; border:none; border-radius:6px; font-weight:bold; margin-bottom:15px; cursor:pointer;">
+        🌐 Masuk dengan Google
+      </button>
+
+      <hr style="margin:15px 0; border:0; border-top:1px solid #ddd;">
+
+      <!-- 2. Email & Password -->
+      <h3 id="authTitle" style="margin-bottom:10px;">Masuk ke Akun</h3>
       
-      <div class="card-box" id="authBox" style="max-width: 400px; margin: 0 auto;">
-        <h3 id="authTitle" style="margin-bottom: 15px;">Masuk ke Akun</h3>
-        
-        <div class="form-group" id="groupUsername" style="display: none;">
-          <label>Username / Nama Toko</label>
-          <input type="text" id="authUsername" placeholder="Contoh: Budi Store">
-        </div>
-        
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="authEmail" placeholder="email@contoh.com">
-        </div>
-
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassword" placeholder="******">
-        </div>
-
-        <button class="btn-primary" style="width: 100%;" id="btnAuth" onclick="handleAuth()">Masuk</button>
-        
-        <p style="text-align: center; font-size: 13px; margin-top: 15px; cursor: pointer; color: #00aa5b;" onclick="toggleAuthMode()" id="toggleAuthText">
-          Belum punya akun? Daftar di sini
-        </p>
+      <div class="form-group" id="groupUsername" style="display:none; margin-bottom:10px;">
+        <label>Username / Nama Toko</label>
+        <input type="text" id="authUsername" placeholder="Nama Lengkap / Username" style="width:100%; padding:8px; box-sizing:border-box;">
       </div>
 
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="email@contoh.com" style="width:100%; padding:8px; box-sizing:border-box;">
+      </div>
+
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="******" style="width:100%; padding:8px; box-sizing:border-box;">
+      </div>
+      
+      <button id="btnAuth" class="btn-primary" onclick="handleEmailAuth()" style="width:100%; padding:10px; background:#00aa5b; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
+        Masuk
+      </button>
+      
+      <p onclick="toggleAuthMode()" id="toggleAuthText" style="color:#00aa5b; cursor:pointer; font-size:13px; margin-top:10px; text-align:center;">
+        Belum punya akun? Daftar di sini
+      </p>
+
+      <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
+
+      <!-- 3. Nomor HP / OTP -->
+      <h3 style="margin-bottom:10px;">Masuk dengan Nomor HP</h3>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Nomor HP (dengan +62)</label>
+        <input type="tel" id="authPhone" placeholder="+6281234567890" style="width:100%; padding:8px; box-sizing:border-box;">
+      </div>
+
+      <button onclick="sendPhoneOTP()" style="width:100%; padding:8px; background:#128C7E; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
+        📲 Kirim Kode OTP
+      </button>
+
+      <div id="otpVerifyGroup" style="display:none; margin-top:10px;">
+        <input type="text" id="authOTP" placeholder="Masukkan 6 Digit OTP" style="width:100%; padding:8px; margin-bottom:8px; box-sizing:border-box;">
+        <button onclick="verifyPhoneOTP()" style="width:100%; padding:8px; background:#075E54; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
+          Verifikasi OTP & Masuk
+        </button>
+      </div>
+          </div>
+      
       <div class="card-box" id="profileBox" style="max-width: 500px; margin: 0 auto; display: none;">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
           <div style="width: 60px; height: 60px; background: #00aa5b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;" id="userAvatar">U</div>
